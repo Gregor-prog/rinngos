@@ -1,0 +1,72 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FeedbackService = exports.CreateFeedbackDto = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
+const class_validator_1 = require("class-validator");
+class CreateFeedbackDto {
+}
+exports.CreateFeedbackDto = CreateFeedbackDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateFeedbackDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateFeedbackDto.prototype, "contact", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(client_1.FeedbackCategory),
+    __metadata("design:type", String)
+], CreateFeedbackDto.prototype, "category", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateFeedbackDto.prototype, "message", void 0);
+let FeedbackService = class FeedbackService {
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async create(dto) {
+        return this.prisma.feedback.create({
+            data: dto,
+        });
+    }
+    async findAll(category) {
+        const where = {};
+        if (category)
+            where.category = category;
+        return this.prisma.feedback.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+    async updateStatus(id, status) {
+        const item = await this.prisma.feedback.findUnique({ where: { id } });
+        if (!item)
+            throw new common_1.NotFoundException('Feedback entry not found');
+        return this.prisma.feedback.update({
+            where: { id },
+            data: { status },
+        });
+    }
+};
+exports.FeedbackService = FeedbackService;
+exports.FeedbackService = FeedbackService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], FeedbackService);
+//# sourceMappingURL=feedback.service.js.map
